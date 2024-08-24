@@ -28,3 +28,38 @@ All services should be able to communicate with the metadata service and the loa
 To see my progress so far, create a virtual env and install the requirements then cd into `src` and execute `python testrun.py`
 
 the main script has the core idea per unit time, but then they may not have been tested or completely integrated, the testrun script will hold the most up to date tested pieces.
+
+
+# Levraging another tool
+
+So after careful consideration of the architecture I highlighted here, it has become pretty clear that I may be largely reinventing the wheel on may grounds. Most of the Stuff I want to achieve with this framework is already done out of the box with an existing framework called [DLT](https://dlthub.com/).
+
+1. The idea that I should have a uniform interface that can ingest data from any kind of source such that the logic of the source can be abstracted away as an implementation detail is already possible through DLT
+
+2. DLT integerates with all the sources I have identified here (relational DB, API, File-like systems like GCS, S3, Local file system, etc)
+
+3. DLT gracefullt handles schema evolution (through a process called normalization & schema contracts)
+
+4. DLT comes with multiple write dispositions (replace, merge, append) whcih means it can handle incremental loads
+
+5. DLT can handle backfills
+
+6. DLT supports apache Iceberg tables via it's Athena and Dremio destinations
+
+7. If you have a destination in mind not yet officially supported, DLT can be extended to build your own custom destination
+
+8. Becasue DLT is pythonic and open source, it's a great choice for technical maintainers as they can extend it to build custom source and destinations. It's also great for non-technical folks because once a source or destination exists it's fairly easy to run dlt
+
+
+### Building a cusstom Iceberg destination
+
+So this piece isn't 100% figured out at this point but basically a generic custom destination that supports catalogs like REST, Hive Metadata catalog, nessie, etc. would be great.
+
+I've been thinking about what the destination should look like and in theory I guess the idea would be to implement an interface that let's dlt:
+
+1. Figiure out what catalog it needs to talk to
+2. check that the metadata (data schema, table name, etc) it has about incoming data can somehow be verified against the catalog
+3. create a table with required information if it doesn't exist
+4. perform DML operations on an existing table based on the state data, write disposiiton, etc.
+
+If I can implement a destination that can somehow enable dlt to perform all these operations I think I'd have created a truly generic iceberg destination. There's also the trouble of figuring out what mechnism to use to talk to iceberg and it's catalog because pyiceberg is currently limited in what it's capable of doing as I've highlighted in previous sections of this doc.
