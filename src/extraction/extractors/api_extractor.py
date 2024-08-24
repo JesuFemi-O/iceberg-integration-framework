@@ -58,6 +58,12 @@ class APIExtractor:
         pipeline = dlt.pipeline(pipeline_name="api_pipeline", destination="duckdb", dataset_name="api_data")
 
         # Run the pipeline and capture the output
+        # So the good thing is dlt pipeline.run() is a wrapper around 3 operationns which you can run individually
+        # pipeline.extract() -> fetch the data from the source and temporarily wirte to local files
+        # pipeline.normalize() -> handles normalisations with local files and writes backt local files
+        # pipeline.load() -> writes the data into a destination and probably cleans up temp local files
+        # There just might be a chance to get dlt to extract the data, intercept the raw data and stop dlt here, 
+        # but we need to understand at what point dlt updates state information
         pipeline.run(source)
 
         # Convert the yielded data to a Pandas DataFrame and then to a PyArrow Table
