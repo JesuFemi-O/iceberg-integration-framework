@@ -39,7 +39,8 @@ docker-compose up -d
 6. click save and that should add your nessie catalog as a source to dremio
 
 7. add minio - since mino is an s3 compatable source you can add it as follows:
-[add-s3](../../docs/assets/add-s3-source.png)
+
+![add-s3](../../docs/assets/add-s3-source.png)
 
 8. add the following settings
     in the general tab:
@@ -54,11 +55,11 @@ docker-compose up -d
     - fs.s3a.endpoint: minio:9000
 
 9. the last two options should be added under connection properties
-[s3-connection](../../docs/assets/s3-connection-properties.png)
+![s3-connection](../../docs/assets/s3-connection-properties.png)
 
 
 10. click on save and the minio bucket should show up like in the image:
-[s3-view](../../docs/assets/bucket-views.png)
+![s3-view](../../docs/assets/bucket-views.png)
 
 
 
@@ -105,15 +106,15 @@ port = 32010
 
 you should get a message like the one in the image if the load is successful
 
-[dlt-run-success](../../docs/assets/successful-run.png)
+![dlt-run-success](../../docs/assets/successful-run.png)
 
 The tables should also show up in iceberg/nessie:
 
-[iceberg-tables](../../docs/assets/iceberg-tables.png)
+![iceberg-tables](../../docs/assets/iceberg-tables.png)
 
 and you should be able to query the data
 
-[iceberg-query](../../docs/assets/query-iceberg.png)
+![iceberg-query](../../docs/assets/query-iceberg.png)
 
 
 notes about how to configure your secrets.toml file and install the requirements.txt
