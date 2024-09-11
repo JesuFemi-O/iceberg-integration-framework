@@ -1,6 +1,6 @@
 # Building an ETL Integration stack with DLT and Dremio
 
-![Architecture](./docs/assets/v2-archi.png)
+![Architecture](../../docs/assets/v2-archi.png)
 
 This version of my project adopts dlthub for data ingestion and loading into my iceberg tables.
 

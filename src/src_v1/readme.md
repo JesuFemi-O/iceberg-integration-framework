@@ -2,7 +2,7 @@
 
 Framework Architecture
 
-![Architecture](./docs/assets/iceberg-int-framework.png)
+![Architecture](../../docs/assets/iceberg-int-framework.png)
 
 So from a framework perspective here's how I'm thinking of approaching the problem.
 
