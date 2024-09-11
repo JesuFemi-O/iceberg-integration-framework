@@ -4,9 +4,13 @@ Building a simple end-to-end ingestion framework. This work is inspired by my wo
 
 I have created this repo to help me not drift away from my goal of piecing together and easy to follow open-tutorial on getting started with apache iceberg. 
 
+The decisions in the hacking-apache-iceberg repo will directly influnce this work since the framework will be powered by the stack from that repo.
+
+---
+
 TLDR; You should checkout the [src/src_v2](./src/src_v2) directory for a working example.
 
-The decisions in the hacking-apache-iceberg repo will directly influnce this work since the framework will be powered by the stack from that repo.
+---
 
 # Levraging another tool
 
