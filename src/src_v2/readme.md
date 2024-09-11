@@ -25,13 +25,14 @@ docker-compose up -d
 
 5. add the following settings
     in the general tab
-        - nessie endpoint url: http://nessie:19120/api/v2
-        - nessie authentication type: None
+    - nessie endpoint url: http://nessie:19120/api/v2
+    - nessie authentication type: None
     
     in the storage tab:
-        - aws root path: warehouse
-        - aws access key: minioadmin
-        - aws secret ket: minioadmin
+    - aws root path: warehouse
+    - aws access key: minioadmin
+    - aws secret ket: minioadmin
+    
     in the same storage tab, just below, add the following properties and ensure you uncheck the encrypt connection option
 
     ![nessie-connection-config](../../docs/assets/nessie-storage-config.png)
@@ -115,6 +116,3 @@ The tables should also show up in iceberg/nessie:
 and you should be able to query the data
 
 ![iceberg-query](../../docs/assets/query-iceberg.png)
-
-
-notes about how to configure your secrets.toml file and install the requirements.txt
