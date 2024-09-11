@@ -6,33 +6,9 @@ I have created this repo to help me not drift away from my goal of piecing toget
 
 The decisions in the hacking-apache-iceberg repo will directly influnce this work since the framework will be powered by the stack from that repo.
 
-Framework Architecture
-
-![Architecture](./docs/assets/iceberg-int-framework.png)
-
-So from a framework perspective here's how I'm thinking of approaching the problem.
-
-1. an extraction service: This will simply be a class or group of classes that will be responsible for fetching data from different kind of sources. so think of it as a wrapper that allows for a uniform interface that will unify extraction efforts and always return a pyarrow table 
-
-2. Metadata service: Basically a service that can evaluate the pyarrow table and have enough information to create an iceberg table if the data represents a new source, I dont know if this service is doing too much if its tracking incoming data metadata and also handle table creation but that's food for thoughts. Same idea here about a class or group of classes that form the service - will break this into a metadata and table creation service.
-
-3. Data quality service: this service pretty much ensures that a contract about the structure of the data is respected and adhered to there are many tools for DQ so I'm all about building interfaces to represent the service in a uniform way.
-
-4. Loader service: This plane handles insert if it's a new source and upserts/merge if it's an existing source
-
-All services should be able to communicate with the metadata service and the loader service should be able to verify if a source should be loaded into the production table. 
-
-
-## How to run
-
-To see my progress so far, create a virtual env and install the requirements then cd into `src` and execute `python testrun.py`
-
-the main script has the core idea per unit time, but then they may not have been tested or completely integrated, the testrun script will hold the most up to date tested pieces.
-
-
 # Levraging another tool
 
-So after careful consideration of the architecture I highlighted here, it has become pretty clear that I may be largely reinventing the wheel on may grounds. Most of the Stuff I want to achieve with this framework is already done out of the box with an existing framework called [DLT](https://dlthub.com/).
+So after careful consideration of the architecture I highlighted in [v1](./src/src_v1/), it has become pretty clear that I may be largely reinventing the wheel on may grounds. Most of the Stuff I want to achieve with this framework is already done out of the box with an existing framework called [DLT](https://dlthub.com/).
 
 1. The idea that I should have a uniform interface that can ingest data from any kind of source such that the logic of the source can be abstracted away as an implementation detail is already possible through DLT
 
@@ -51,7 +27,42 @@ So after careful consideration of the architecture I highlighted here, it has be
 8. Becasue DLT is pythonic and open source, it's a great choice for technical maintainers as they can extend it to build custom source and destinations. It's also great for non-technical folks because once a source or destination exists it's fairly easy to run dlt
 
 
-### Building a cusstom Iceberg destination
+## levraging DLT and Dremio
+
+Although I started out this project with some rather novel ideas on what my framework should look like, I spent most of August learning about the DLT framework.
+
+There were a lot of simillarities to how DLT handle data integration and the way I was thinking about it. The really cool thing with DLT which was a big win for me was that it handled schema normalization and evolution out of the box and it could also handle different types of write dispositions (full loads, incremental loads with different merge strategies) and it could also handle backfills. DLT also had data contracts built into them making it more attractive to me.
+
+so rather than re-inventing the wheel, it made the most sense to invest time in figuring out how I could levrage dlt in my framework.
+
+The idea here would be that dlt would be the singular interface to handle any kind of source data I had to deal with and will write to my iceberg table.
+
+The challenge initially was finding a way to get dlt to write to iceberg but then it turns out it's actually capable of writing to iceberg via dremio.
+
+Dremio is able to connecto to a nessie catalog and also a hive catalog/metastore.
+
+DLT requires data from your source to be written to object storage and copied from object storage into your iceberg table.
+
+Behind the scene dlt uses arrow flight to talk to dremio (This is just FYI for me as i'll be spending time learning about the apache arrow project after I am able to stand this framework up.)
+
+
+### Framework Architecture
+
+![Architecture](./docs/assets/v2-archi.png)
+
+dlt makes it extremely easy to write custom sources so if we have any new source there can always to two options:
+
+1. Implement a custom source in dlt
+2. write to object storage and allow dlt handle the load from object storage to your iceberg tables.
+
+DLT's approach to writing to iceberg tables follows a data staging pattern where data is written to an intermediate storgae location and copied from there into your iceberg table.
+
+as at the time of this writing I also learnt that airbyte has an integration for iceberg making it attractive for me.
+
+DLT's trick IMO with dremio is that dremio can read from many different sources including object storage and it's not hard for dremio to copy data from object storage in parquet format into iceberg.
+
+
+### Building a custom Iceberg destination
 
 So this piece isn't 100% figured out at this point but basically a generic custom destination that supports catalogs like REST, Hive Metadata catalog, nessie, etc. would be great.
 
@@ -63,3 +74,8 @@ I've been thinking about what the destination should look like and in theory I g
 4. perform DML operations on an existing table based on the state data, write disposiiton, etc.
 
 If I can implement a destination that can somehow enable dlt to perform all these operations I think I'd have created a truly generic iceberg destination. There's also the trouble of figuring out what mechnism to use to talk to iceberg and it's catalog because pyiceberg is currently limited in what it's capable of doing as I've highlighted in previous sections of this doc.
+
+
+### Notes on Apache Arrow Flight
+
+I think that learning about flight and how it works would be greatly beneficial in the long run since it's how dlt communicate with dremio, once I understand the protocol it might just be easier to build a destination that talks to a rest catalog. Still a wild idea but one worth chasing I guess.
