@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  dremio:
+    platform: linux/x86_64
+    image: dremio/dremio-oss:latest
+    ports:
+      - 9047:9047
+      - 31010:31010
+      - 32010:32010
+    container_name: dremio
+
+  minio:
+    image: minio/minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    container_name: minio
+    command: server /data --console-address ":9001"
+  
+  mc-job:
+    image: 'minio/mc'
+    container_name: mc-job
+    entrypoint: |
+      /bin/bash -c "
+      sleep 5;
+      /usr/bin/mc config --quiet host add myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb --quiet myminio/warehouse
+      /usr/bin/mc mb --quiet myminio/landing
+      "
+    depends_on:
+      - minio
+  
+  nessie:
+    image: projectnessie/nessie
+    container_name: nessie
+    ports:
+      - "19120:19120"
+  
+  
